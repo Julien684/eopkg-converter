@@ -1,0 +1,13 @@
+# Rust
+/target/
+**/*.rs.bk
+
+# Artefacts de construction
+/dist/
+
+# Scratch / helpers de test locaux (non livrés)
+remote_sshrun.py
+
+# Paquet distribué : attaché à la release Gitea (section Publications),
+# jamais versionné dans l'arbre.
+*.eopkg

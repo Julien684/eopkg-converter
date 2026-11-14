@@ -1,0 +1,39 @@
+[package]
+name = "eopkg-converter"
+version = "1.0.2"
+edition = "2021"
+rust-version = "1.85"
+description = "Convert a Debian .deb or an RPM package into a Solus .eopkg (CLI + Qt6 GUI)"
+license = "GPL-3.0-or-later"
+
+[lib]
+name = "eopkg_converter"
+path = "src/lib.rs"
+
+[[bin]]
+name = "eopkg-converter"
+path = "src/bin/cli.rs"
+
+[[bin]]
+name = "eopkg-converter-gui"
+path = "src/bin/gui.rs"
+
+[[bin]]
+name = "pack-eopkg"
+path = "src/bin/pack.rs"
+
+[dependencies]
+tar = "0.4"
+flate2 = "1"
+crc32fast = "1"
+bzip2 = "0.4"
+xz2 = "0.1"
+zstd = "0.13"
+sha1 = "0.10"
+# Interface graphique Qt6 (binaire `eopkg-converter-gui`).
+qtrs = "0.5.9"
+cxx = "1.0"
+
+[profile.release]
+opt-level = 2
+strip = true

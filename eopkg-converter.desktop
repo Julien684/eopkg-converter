@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Eopkg Converter
+GenericName=Package Converter
+Comment=Convert a Debian .deb or an RPM package into a Solus .eopkg
+Exec=eopkg-converter-gui
+Icon=eopkg-converter
+Terminal=false
+Categories=System;PackageManager;Qt;
+Keywords=deb;rpm;eopkg;solus;convert;package;
+StartupNotify=true

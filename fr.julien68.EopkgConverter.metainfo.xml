@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>fr.julien68.EopkgConverter</id>
+  <name>Eopkg Converter</name>
+  <summary>Convert .deb and .rpm packages into Solus .eopkg packages</summary>
+  <description>
+    <p>
+      Eopkg Converter is a fast, dependency-free tool written in Rust that
+      converts a Debian <code>.deb</code> or an RPM <code>.rpm</code> package
+      into an installable Solus <code>.eopkg</code> package.
+    </p>
+    <p>
+      It ships two binaries: a command-line converter
+      (<code>eopkg-converter</code>) and a Qt6 graphical interface
+      (<code>eopkg-converter-gui</code>) with batch conversion, a progress
+      bar and a live journal.
+    </p>
+    <p>
+      The resulting <code>.eopkg</code> is a conformant archive preserving
+      file types, permissions, ownership and symbolic/hard links.
+    </p>
+  </description>
+  <launchable type="desktop-id">eopkg-converter.desktop</launchable>
+  <provides>
+    <binary>eopkg-converter</binary>
+    <binary>eopkg-converter-gui</binary>
+  </provides>
+  <url type="homepage">http://depoa.julien68.fr/julien/eopkg-converter</url>
+  <url type="bugtracker">http://depoa.julien68.fr/julien/eopkg-converter/issues</url>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer_name>Julien</developer_name>
+  <releases>
+    <release version="1.0.0" timestamp="2026-11-14">
+      <description>
+        <p>Initial release: DEB and RPM conversion, CLI and Qt6 GUI.</p>
+      </description>
+    </release>
+  </releases>
+  <content_rating type="oars-1.0"/>
+</component>
