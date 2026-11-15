@@ -37,7 +37,7 @@ sudo eopkg install https://github.com/Julien684/eopkg-converter/releases/downloa
 ### Installation via eopkg du dépôt Linuxon
 
 ```sh
-# Téléchargement et installation direct du paquet depuis Gitea (depoa) :
+# Téléchargement et installation direct du paquet depuis GitHub :
 sudo eopkg install eopkg-converter
 ```
 
