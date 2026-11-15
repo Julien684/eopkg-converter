@@ -32,7 +32,7 @@ sert de repli).
 ### Installation via eopkg avec le binaire
 
 ```bash
-sudo eopkg install https://github.com/Julien684/eopkg-converter/releases/download/v1.0.2/eopkg-converter-1.0.2-1-1-x86_64.eopkg
+sudo eopkg install https://github.com/Julien684/eopkg-converter/releases/download/v1.0.3/eopkg-converter-1.0.3-1-1-x86_64.eopkg
 ```
 ### Installation via eopkg du dépôt Linuxon
 
@@ -242,7 +242,7 @@ fallback).
 The package is self-contained, it installs as-is:
 
 ```bash
-sudo eopkg install https://github.com/Julien684/eopkg-converter/releases/download/v1.0.2/eopkg-converter-1.0.2-1-1-x86_64.eopkg
+sudo eopkg install https://github.com/Julien684/eopkg-converter/releases/download/v1.0.3/eopkg-converter-1.0.3-1-1-x86_64.eopkg
 ```
 
 ### Installation via eopkg from the Linuxon repository

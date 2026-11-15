@@ -356,6 +356,30 @@ pub enum TarSource<'a> {
     Bytes(&'a [u8]),
 }
 
+/// Normalise les champs obligatoires de `metadata.xml`.
+///
+/// eopkg refuse un `<License>` vide (« PISI.package.license[1]: Le jeton
+/// obligatoire License n'est pas disponible ») — un RPM sans licence en
+/// produit un, ce qui faisait échouer l'installation. Même logique pour les
+/// autres champs obligatoires.
+pub(crate) fn normalize(info: &mut PackageInfo) {
+    if info.summary.trim().is_empty() {
+        info.summary = info.name.clone();
+    }
+    if info.description.trim().is_empty() {
+        info.description = info.name.clone();
+    }
+    if info.part_of.trim().is_empty() {
+        info.part_of = "system.utilities".to_string();
+    }
+    if info.license.trim().is_empty() {
+        info.license = DEFAULT_LICENSE.to_string();
+    }
+    if info.homepage.trim().is_empty() {
+        info.homepage = DEFAULT_HOMEPAGE.to_string();
+    }
+}
+
 /// Assemble le `.eopkg` final.
 ///
 /// L'ordre des membres — `metadata.xml`, `files.xml`, `install.tar.xz` — est
@@ -368,7 +392,9 @@ pub fn write_eopkg(
 ) -> io::Result<()> {
     let installed_size: u64 = files.iter().map(|f| f.size).sum();
     let files_xml = build_files_xml(files);
-    let metadata_xml = build_metadata_xml(info, installed_size);
+    let mut info = info.clone();
+    normalize(&mut info);
+    let metadata_xml = build_metadata_xml(&info, installed_size);
 
     if let Some(dir) = out.parent() {
         if !dir.as_os_str().is_empty() {
@@ -390,6 +416,22 @@ pub fn write_eopkg(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn champs_vides_normalises() {
+        let mut info = PackageInfo::new("harbor-beta", "1.0.3", "x86_64");
+        info.summary.clear();
+        info.description.clear();
+        info.part_of.clear();
+        info.license.clear();
+        info.homepage.clear();
+        normalize(&mut info);
+        assert_eq!(info.summary, "harbor-beta");
+        assert_eq!(info.description, "harbor-beta");
+        assert_eq!(info.part_of, "system.utilities");
+        assert_eq!(info.license, DEFAULT_LICENSE);
+        assert_eq!(info.homepage, DEFAULT_HOMEPAGE);
+    }
 
     #[test]
     fn versions_normalisees() {

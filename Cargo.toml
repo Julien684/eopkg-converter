@@ -1,6 +1,6 @@
 [package]
 name = "eopkg-converter"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2021"
 rust-version = "1.85"
 description = "Convert a Debian .deb or an RPM package into a Solus .eopkg (CLI + Qt6 GUI)"

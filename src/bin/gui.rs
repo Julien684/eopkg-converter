@@ -71,22 +71,56 @@ fn is_supported(p: &str) -> bool {
 /// les droits root : sans `pkexec`, on le signale sans échouer la conversion.
 fn install_package(path: &std::path::Path) -> String {
     use std::process::Command;
-    let status = Command::new("pkexec")
+    // pkexec change de répertoire courant (home de root) : il faut un chemin
+    // ABSOLU, sinon eopkg ne trouve pas le fichier.
+    let abs = std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+    let out = Command::new("pkexec")
         .arg("eopkg")
         .arg("install")
         .arg("-y")
-        .arg(path)
-        .status();
-    match status {
-        Ok(s) if s.success() => format!("Installé : {}", path.display()),
-        Ok(s) => format!(
-            "Installation refusée/échouée (code {}) : {}",
-            s.code().unwrap_or(-1),
-            path.display()
-        ),
+        .arg(&abs)
+        .output();
+    match out {
+        Ok(o) if o.status.success() => {
+            let so = String::from_utf8_lossy(&o.stdout);
+            let err = String::from_utf8_lossy(&o.stderr);
+            let text = format!("{so}{err}");
+            // eopkg peut sortir avec le code 0 tout en refusant le paquet
+            // (erreur autoxml, etc.) : on exige la trace d'une vraie
+            // installation pour ne pas annoncer un faux succès.
+            let installed = text.contains("installé") || text.contains("installed");
+            let failed = text.contains("autoxml")
+                || text.contains("n'est pas disponible")
+                || text.contains("n’est pas disponible")
+                || text.contains("contient des erreurs");
+            if installed && !failed {
+                format!("Installé : {}", abs.display())
+            } else {
+                format!(
+                    "Installation NON confirmée : {}\n     {}",
+                    abs.display(),
+                    text.trim().replace('\n', "\n     ")
+                )
+            }
+        }
+        Ok(o) => {
+            let err = String::from_utf8_lossy(&o.stderr);
+            let so = String::from_utf8_lossy(&o.stdout);
+            let detail = format!(
+                "{}{}",
+                so.trim_end(),
+                if err.trim().is_empty() { "" } else { err.trim_end() }
+            );
+            format!(
+                "Installation échouée (code {}) : {}\n     {}",
+                o.status.code().unwrap_or(-1),
+                abs.display(),
+                detail.replace('\n', "\n     ")
+            )
+        }
         Err(e) => format!(
             "Impossible de lancer pkexec ({e}) — installez manuellement {}",
-            path.display()
+            abs.display()
         ),
     }
 }
@@ -109,6 +143,7 @@ fn convert_all(files: Vec<String>, out_dir: String, install_after: bool, tx: Sen
         log_sink: Some(sink),
     };
     let out_path = std::path::PathBuf::from(&out_dir);
+    let out_is_default = out_dir.trim().is_empty();
     let mut ok = 0usize;
     let mut fail = 0usize;
     let total = files.len();
@@ -117,10 +152,19 @@ fn convert_all(files: Vec<String>, out_dir: String, install_after: bool, tx: Sen
         let _ = tx.send(Msg::Log(format!("({}/{}) {}", i + 1, total, file)));
         let _ = tx.send(Msg::Progress { index: i, total });
         let is_rpm = file.to_lowercase().ends_with(".rpm");
-        let res = if is_rpm {
-            rpm::convert(std::path::Path::new(file), &out_path, opts.clone())
+        // Sans destination choisie, le .eopkg va à côté du paquet d'origine.
+        let dest = if out_is_default {
+            std::path::Path::new(file)
+                .parent()
+                .map(std::path::Path::to_path_buf)
+                .unwrap_or_else(|| std::path::PathBuf::from("."))
         } else {
-            convert::convert(std::path::Path::new(file), &out_path, opts.clone())
+            out_path.clone()
+        };
+        let res = if is_rpm {
+            rpm::convert(std::path::Path::new(file), &dest, opts.clone())
+        } else {
+            convert::convert(std::path::Path::new(file), &dest, opts.clone())
         };
         match res {
             Ok(summary) => {
@@ -435,8 +479,10 @@ fn main() {
     // ---- destination ----
     let destbar = Frame::new().parent(&central).build();
     let mut dest_h = HBoxLayout::with_parent(&destbar);
-    let dest_label = Label::new("Destination :").parent(&destbar).build();
-    let dest_edit = LineEdit::new(String::from(".")).parent(&destbar).build();
+    let dest_label = Label::new("Destination (vide = dossier du paquet) :")
+        .parent(&destbar)
+        .build();
+    let dest_edit = LineEdit::new(String::new()).parent(&destbar).build();
     dest_edit.set_object_name("dest");
     let btn_choose = PushButton::new("Choisir…")
         .parent(&destbar)

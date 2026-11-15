@@ -770,19 +770,19 @@ pub fn convert(rpm: &Path, dest: &Path, opts: Options) -> io::Result<Summary> {
 
     // ---- métadonnées ----
     let mut info = PackageInfo::new(&name, &version, &arch);
-    if let Some(s) = data.data.string(TAG_SUMMARY) {
+    if let Some(s) = non_empty(&data.data, TAG_SUMMARY) {
         info.summary = s;
     }
-    if let Some(d) = data.data.string(TAG_DESCRIPTION) {
+    if let Some(d) = non_empty(&data.data, TAG_DESCRIPTION) {
         info.description = d;
     }
-    if let Some(l) = data.data.string(TAG_LICENSE) {
+    if let Some(l) = non_empty(&data.data, TAG_LICENSE) {
         info.license = l;
     }
-    if let Some(u) = data.data.string(TAG_URL) {
+    if let Some(u) = non_empty(&data.data, TAG_URL) {
         info.homepage = u;
     }
-    if let Some(g) = data.data.string(TAG_GROUP) {
+    if let Some(g) = non_empty(&data.data, TAG_GROUP) {
         info.part_of = g.replace('/', ".");
     }
     info.history_comment = "Converted from RPM package".to_string();
@@ -815,6 +815,13 @@ pub fn convert(rpm: &Path, dest: &Path, opts: Options) -> io::Result<Summary> {
         scripts,
         scripts_dir,
     })
+}
+
+/// Chaîne non vide d'un tag RPM (beaucoup de RPM déclarent des tags vides).
+fn non_empty(hdr: &Header, tag: u32) -> Option<String> {
+    hdr.string(tag)
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
 }
 
 /// Lit les scriptlets de maintenance d'un RPM (pré/post-installation,
