@@ -248,7 +248,7 @@ sudo eopkg install https://github.com/Julien684/eopkg-converter/releases/downloa
 ### Installation via eopkg from the Linuxon repository
 
 ```sh
-# Direct download and installation of the package from Gitea (depoa):
+# Direct download and installation of the package from GitHub:
 sudo eopkg install eopkg-converter
 ```
 
